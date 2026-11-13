@@ -7,7 +7,33 @@ import '../repository/currency_repository.dart';
 class ConverterState extends ChangeNotifier {
   final repository = CurrencyRepository();
 
-  final currencies = ['USD', 'EUR', 'RUB', 'GBP', 'CNY', 'JPY', 'KZT', 'BYN', 'TRY'];
+  final currencies = [
+    'USD',
+    'EUR',
+    'RUB',
+    'GBP',
+    'CNY',
+    'JPY',
+    'KZT',
+    'BYN',
+    'TRY',
+  ];
+
+  Set<String> favorites = {};
+
+  void toggleFavorite(String currency) {
+    if (favorites.contains(currency)) {
+      favorites.remove(currency);
+    } else {
+      favorites.add(currency);
+    }
+
+    notifyListeners();
+  }
+
+  bool isFavorite(String currency) {
+    return favorites.contains(currency);
+  }
 
   String from = 'EUR';
   String to = 'RUB';

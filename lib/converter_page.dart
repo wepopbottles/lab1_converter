@@ -32,7 +32,24 @@ class _ConverterPageState extends State<ConverterPage> {
       value: value,
       isExpanded: true,
       items: state.currencies.map((code) {
-        return DropdownMenuItem(value: code, child: Text(code));
+        return DropdownMenuItem(
+          value: code,
+          child: Row(
+            children: [
+              Text(code),
+              const Spacer(),
+              IconButton(
+                icon: Icon(
+                  state.isFavorite(code) ? Icons.star : Icons.star_border,
+                  color: Colors.amber,
+                ),
+                onPressed: () {
+                  state.toggleFavorite(code);
+                },
+              ),
+            ],
+          ),
+        );
       }).toList(),
       onChanged: (newValue) {
         if (newValue != null) {
@@ -57,11 +74,40 @@ class _ConverterPageState extends State<ConverterPage> {
               style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            Text('Курс: 1 ${state.from} = ${state.rate!.toStringAsFixed(4)} ${state.to}'),
+            Text(
+              'Курс: 1 ${state.from} = ${state.rate!.toStringAsFixed(4)} ${state.to}',
+            ),
             Text('Обновлено: ${formatDate(state.updated!)}'),
           ],
         ),
       ),
+    );
+  }
+
+  Widget buildFavorites() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Избранные валюты',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: state.favorites.map((currency) {
+            return ActionChip(
+              avatar: const Icon(Icons.star, color: Colors.amber),
+              label: Text(currency),
+              onPressed: () {
+                state.setFrom(currency);
+              },
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 
@@ -80,10 +126,16 @@ class _ConverterPageState extends State<ConverterPage> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  if (state.favorites.isNotEmpty) ...[
+                    buildFavorites(),
+                    const SizedBox(height: 20),
+                  ],
                   // Поле ввода суммы
                   TextField(
                     controller: amountController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     decoration: const InputDecoration(
                       labelText: 'Сумма',
                       border: OutlineInputBorder(),
